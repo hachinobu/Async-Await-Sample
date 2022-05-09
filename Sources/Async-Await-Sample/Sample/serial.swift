@@ -14,6 +14,7 @@ func serial() -> Task<Void, Error> {
         let _ = try await sleep(seconds: 3)
         let outputResult = try await outputIntArray()
         print("result: " + outputResult.description)
+        print("end " + #function.debugDescription)
     }
 }
 

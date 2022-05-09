@@ -164,6 +164,37 @@ func stream() -> AsyncThrowingStream<String, Error> {
 
 //_ = asyncStreamCancelTermination()
 
-_ = asyncStreamCancelTermination2()
+//_ = asyncStreamCancelTermination2()
+
+
+// Task
+//singleTask()
+//multiTask()
+
+//let result = multiTasks()
+//print(result)
+
+//Task {
+//    let result = await asyncTask()
+//    print("Main: " + result.description)
+//}
+
+//Task {
+//    let task = parentTask()
+//    task.cancel()
+//}
+
+//let t = cancelSingleTask()
+
+let st = sleepCancel()
+Task {
+    switch await st.result {
+    case .failure(let e):
+        print(e.localizedDescription)
+    case .success:
+        print("s")
+    }
+}
+
 
 RunLoop.main.run()
