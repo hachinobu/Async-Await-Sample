@@ -153,6 +153,17 @@ func stream() -> AsyncThrowingStream<String, Error> {
 //// BadPattern
 //_ = badPatternAsynclet()
 
+// AsyncStream
+//_ = asyncStream()
 
+//_ = asyncStreamParallel()
+
+//_ = asyncThrowingStreamError()
+
+//_ = asyncStreamFinishTermination()
+
+//_ = asyncStreamCancelTermination()
+
+_ = asyncStreamCancelTermination2()
 
 RunLoop.main.run()
