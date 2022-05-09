@@ -1,44 +1,5 @@
 import Foundation
 
-
-
-//Task {
-//    async let s: () = sleep(nanoseconds: 5)
-//    async let nums = outputIntArray()
-//    async let num = outputInt(num: 1)
-//    let arr = try await withThrowingTaskGroup(of: (Array<Int>, Int).self) { [s, nums, num] group -> [Int] in
-//        group.addTask {
-//            let (_, s, a) = (s, nums, num)
-//            return (s, a)
-//        }
-//        return try await group.reduce(into: [Int]()) { result, args in
-//            let (nums, num) = args
-//            result.append(contentsOf: nums)
-//            result.append(num)
-//        }
-//    }
-//    print(arr)
-//}
-
-//Task {
-//    let result = try await withThrowingTaskGroup(of: Int.self) { group -> [Int] in
-//        group.addTask {
-//            try! await outputIntArray()[0]
-//        }
-//        group.addTask {
-//            await outputInt(num: 3)
-//        }
-//        group.addTask {
-//            try await outputIntArray()[3]
-//        }
-//        return try await group.reduce(into: [Int](), { partialResult, n in
-//            print(n.description)
-//            partialResult.append(n)
-//        })
-//    }
-//    print(result.debugDescription)
-//}
-
 func stream2() -> AsyncStream<Double> {
     return .init { c in
         c.yield(1)
@@ -176,19 +137,19 @@ func stream() -> AsyncThrowingStream<String, Error> {
 //}
 //print(sum)
 
-// async/await 直列実行パターン
-//_ = serial1()
-
-// async/await 並列実行パターン
+//// async/await 直列実行パターン
+//_ = serial()
+//
+//// async/await 並列実行パターン
 //// async let版
-//_ = parallel1()
-
+//_ = asyncletParallel()
+//
 //// withThrowingTaskGroup
-//_ = withThrowingTaskGroupSerial()
-
+//_ = withThrowingTaskGroupParallel()
+//
 //// withThrowingTaskGroupの子タスクを並列にする
-//_ = withThrowingTaskGroupChildTaskSerial()
-
+//_ = withThrowingTaskGroupChildTaskParallel()
+//
 //// BadPattern
 //_ = badPatternAsynclet()
 
