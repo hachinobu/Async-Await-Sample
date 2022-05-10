@@ -186,15 +186,31 @@ func stream() -> AsyncThrowingStream<String, Error> {
 
 //let t = cancelSingleTask()
 
-let st = sleepCancel()
-Task {
-    switch await st.result {
-    case .failure(let e):
-        print(e.localizedDescription)
-    case .success:
-        print("s")
-    }
-}
+//let st = sleepCancel()
+//Task {
+//    switch await st.result {
+//    case .failure(let e):
+//        print(e.localizedDescription)
+//    case .success:
+//        print("s")
+//    }
+//}
+
+//let task = parentTaskCancel()
+//task.cancel()
+//print("キャンセルタスク")
+//Task {
+//    switch await task.result {
+//    case .failure(let e):
+//        print(e.localizedDescription)
+//    case .success:
+//        print("success")
+//    }
+//}
+
+//_ = asyncletChildTask()
+
+//_ = notChildTask()
 
 
 RunLoop.main.run()
