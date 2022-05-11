@@ -229,12 +229,15 @@ private func childTask3() -> Task<String, Error> {
 // async letやwithThrowingTaskGroupを使った構造的なTask
 func groupTask() async -> Task<Void, Error> {
     Task {
-        await withThrowingTaskGroup(of: Void.self) { group in
+        try await withThrowingTaskGroup(of: Void.self) { group in
             for i in 1..<4 {
                 group.addTask {
                     try await sleep(seconds: i)
                 }
             }
+            print("groupに追加したChildTaskが終わる前に呼び出される")
+            try await group.waitForAll()
+            print("groupに追加したChildTaskが全て終わってから呼び出される")
         }
     }
 }

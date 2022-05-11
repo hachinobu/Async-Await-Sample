@@ -225,14 +225,15 @@ func stream() -> AsyncThrowingStream<String, Error> {
 //    task.cancel()
 //}
 
-//do {
-//    let task1 = Task {
-//        let task2 = await groupTask()
-//        // 下記をコメントアウトするとwithThrowingGroupで作成した子タスクの処理も止まる
-////        task2.cancel()
-//    }
-//    task1.cancel()
-//}
+do {
+    let task1 = Task {
+        let task2 = await groupTask()
+        // 下記をコメントインするとwithThrowingGroupで作成した子タスクの処理も止まる
+//        task2.cancel()
+    }
+    // このタスクをキャンセルしても構造化されていないので中はキャンセルされない
+    task1.cancel()
+}
 
 
 RunLoop.main.run()
