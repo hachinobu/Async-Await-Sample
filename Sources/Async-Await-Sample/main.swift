@@ -212,5 +212,27 @@ func stream() -> AsyncThrowingStream<String, Error> {
 
 //_ = notChildTask()
 
+//do {
+//    let task = Task {
+//        do {
+//            // asyncなメソッドを呼び出すとそのメソッドは子タスクの扱いになる
+//            // ゆえにキャンセルすると中で実行していたメソッドもキャンセルされる
+//            let _ = try await cancelHandleSleep(seconds: 2)
+//        } catch {
+//            print("error!! " + error.localizedDescription)
+//        }
+//    }
+//    task.cancel()
+//}
+
+//do {
+//    let task1 = Task {
+//        let task2 = await groupTask()
+//        // 下記をコメントアウトするとwithThrowingGroupで作成した子タスクの処理も止まる
+////        task2.cancel()
+//    }
+//    task1.cancel()
+//}
+
 
 RunLoop.main.run()

@@ -7,12 +7,18 @@
 
 import Foundation
 
+// タスクとは、プログラムの一部として非同期で実行できる作業の単位です。すべての非同期コードは、何らかのタスクの一部として実行されます。
+
 // セッションでは、構造化されたタスク、構造化されていないタスク、そして分離されたタスクの分類について以下の表のように整理されています[13]。上 2 つの、async let
 // により作成されるタスクとタスクグループに含まれるタスクのみが、ライフサイクルやキャンセルが管理されている構造化されたタスクにあたります。
 // 逆に Task 型のイニシャライザや Task.detached 関数などを用いて作成した Task 型の値を直接扱っている場合は、
 // そのライフサイクルをプログラマ自身が管理しなければいけないという意味で「構造化されていない（"structured" ではない）」ことになる、という点に留意してください。
 // 実際、タスクグループは構造化されている性質を保つために、あえて子タスクに直接アクセスできないようにしている、とプロポーザルでも述べられています。
 
+// 親子関係のタスク（構造化）であれば親のキャンセルは子に伝搬される
+// 親子関係を作るにはasync letやwithThrowingTaskGroupを用いることで作ることができる
+// Taskの中でTaskのイニシャライザを書いた場合は親子関係にはならず独立している
+// この場合、大元のTaskをキャンセルしたときに中のTaskをキャンセルしたい場合はwithTaskCancellationHandlerやTask.checkCancellation()などを用いて自身で管理する必要がある
 
 func singleTask() {
     Task {
@@ -38,6 +44,7 @@ func twoTask() {
 // 3つの並行処理
 // async は私を呼び出す時には必ずawaitを付けることを強制させるものであって、awaitをつけたからといってそのメソッドの中身でTaskを作って並列実行して待ち合わせしてない場合は
 // 非同期の同期にならない。
+// ただしasync付きの関数呼び出しの際はその中の処理は子タスクとして扱われるのでキャンセルが伝搬される
 func multiTasks() async -> Int {
     print("start " + #function.debugDescription)
     // ここで呼び出しているメソッドはTaskを返すがasyncなメソッドでないので非同期の同期はできない
@@ -219,4 +226,15 @@ private func childTask3() -> Task<String, Error> {
     }
 }
 
-// async letやwithThrowingTaskGroupを使った構造的なtask
+// async letやwithThrowingTaskGroupを使った構造的なTask
+func groupTask() async -> Task<Void, Error> {
+    Task {
+        await withThrowingTaskGroup(of: Void.self) { group in
+            for i in 1..<4 {
+                group.addTask {
+                    try await sleep(seconds: i)
+                }
+            }
+        }
+    }
+}

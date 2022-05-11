@@ -13,9 +13,19 @@ enum MyError: Error {
 }
 
 func sleep(seconds: Int = 1) async throws {
-    print("sleep start")
+    print("start " + #function.debugDescription)
     try await Task.sleep(nanoseconds: UInt64(seconds * 1_000_000_000))
-    print("sleep finish")
+    print("end " + #function.debugDescription)
+}
+
+func cancelHandleSleep(seconds: Int = 1) async throws {
+    print("start " + #function.debugDescription)
+    try await withTaskCancellationHandler {
+        try await Task.sleep(nanoseconds: UInt64(seconds * 1_000_000_000))
+    } onCancel: {
+        print("operation cancel!!!")
+    }
+    print("start " + #function.debugDescription)
 }
 
 func outputInt(num: Int) async -> Int {
