@@ -12,7 +12,7 @@ func asyncStream() -> Task<Void, Error> {
     Task {
         print("start " + #function.debugDescription)
         // awaitつけないとFor-in loop requires 'AsyncStream<Int>' to conform to 'Sequence'エラー
-        for await value in outputIntAsyncStream() {
+        for await value in outputIntSleepSerialAsyncStream() {
             print("streamValue: " + value.description)
         }
         print("end " + #function.debugDescription)

@@ -235,24 +235,24 @@ func stream() -> AsyncThrowingStream<String, Error> {
 //    task1.cancel()
 //}
 
-do {
-    Task {
-        let task = asyncThrows()
-        switch await task.result {
-        case .success:
-            print("success")
-        case .failure(let e):
-            if let ee = e as? MyError {
-                switch ee {
-                case .e1:
-                    print("failure: MyError.E1")
-                case .e2:
-                    print("failure: MyError.E2")
-                }
-            }
-        }
-    }
-}
+//do {
+//    Task {
+//        let task = asyncThrows()
+//        switch await task.result {
+//        case .success:
+//            print("success")
+//        case .failure(let e):
+//            if let ee = e as? MyError {
+//                switch ee {
+//                case .e1:
+//                    print("failure: MyError.E1")
+//                case .e2:
+//                    print("failure: MyError.E2")
+//                }
+//            }
+//        }
+//    }
+//}
 
 //Task {
 //    let t = cancelTask()

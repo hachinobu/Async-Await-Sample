@@ -90,6 +90,24 @@ func outputIntSleepSerialAsyncStream() -> AsyncStream<Int> {
     }
 }
 
+func fetchAsyncStreamImageData() -> AsyncThrowingStream<Data, Error> {
+    .init { continuation in
+        Task {
+            let imageURL = URL(string: "https://source.unsplash.com/random")!
+            // この書き方だと直列に処理される
+            for num in [1, 2, 3] {
+                do {
+                    let (data, _) = try await URLSession.shared.data(from: imageURL)
+                    print("num: " + num.description)
+                    continuation.yield(data)
+                } catch {
+                    continuation.finish(throwing: error)
+                }
+            }
+        }
+    }
+}
+
 func outputIntSleepParallelAsyncStream() -> AsyncStream<Int> {
     .init { continuation in
         Task {
@@ -97,7 +115,10 @@ func outputIntSleepParallelAsyncStream() -> AsyncStream<Int> {
             await withTaskGroup(of: Void.self) { group in
                 [3, 2, 1].forEach { num in
                     group.addTask {
-                        try! await sleep(seconds: num)
+                        let imageURL = URL(string: "https://source.unsplash.com/random")!
+                        let (data, _) = try! await URLSession.shared.data(from: imageURL)
+//                        try! await sleep(seconds: num)
+                        print("num: " + num.description + data.description)
                         continuation.yield(num)
                     }
                 }
