@@ -20,6 +20,8 @@ import Foundation
 // Taskの中でTaskのイニシャライザを書いた場合は親子関係にはならず独立している
 // この場合、大元のTaskをキャンセルしたときに中のTaskをキャンセルしたい場合はwithTaskCancellationHandlerやTask.checkCancellation()などを用いて自身で管理する必要がある
 
+// Taskは生成後すぐに実行され明示的な開始は必要ない
+
 func singleTask() {
     Task {
         try await sleep(seconds: 1)
@@ -82,79 +84,6 @@ func parentTask() -> Task<Void, Error> {
     }
 }
 
-// キャンセル部門
-func cancelSingleTask() -> Task<Void, Never> {
-    let task = Task {
-        _ = await serial().result
-        if Task.isCancelled {
-            // ここは通る
-            print("Canceled!!!")
-        }
-    }
-    task.cancel()
-    if Task.isCancelled {
-        // ここにはこない
-        print("Task.isCancelled!!!")
-    }
-    return task
-}
-
-// Task.sleep(nanoseconds: メソッドはキャンセルするとCancellationErrorをthrowする仕様になっている
-// public static func sleep(nanoseconds duration: UInt64) async throws
-func sleepCancel() -> Task<Void, Error> {
-    // taskを保持することでキャンセルや完了を待つことができる
-    // 逆にインスタンスとして保持しない場合は投げっぱなしでタスクは実行されたまま
-    let task = Task {
-        try await sleep(seconds: 3)
-    }
-    // cancel()を実行することでTaskのresultにCancellationErrorが代入される
-    task.cancel()
-    return task
-}
-
-// 親タスクをキャンセルした時に子タスクのキャンセルもしっかりハンドリングしたい場合
-func parentTaskCancel() -> Task<Void, Error> {
-    Task {
-        let t1 = childTask1()
-        let t2 = childTask2()
-        let t3 = childTask3()
-        
-        // withTaskCancellationHandlerを使うとこのTaskのキャンセルを明示的に検知できるので子Taskのキャンセルなども連動できる
-        // isCancelやTask.checkCancellation()の処理が要らなくなる可能性もある
-        await withTaskCancellationHandler {
-            print("withTaskCancellationHandler")
-            let (r1, r2, r3) = await (t1.result, t2.result, t3.result)
-            switch r1 {
-            case .success:
-                print("success")
-            case .failure(let e):
-                print(e.localizedDescription)
-            }
-            
-            switch r2 {
-            case .success:
-                print("success")
-            case .failure(let e):
-                print(e.localizedDescription)
-            }
-            
-            switch r3 {
-            case .success:
-                print("success")
-            case .failure(let e):
-                print(e.localizedDescription)
-            }
-        } onCancel: {
-            print("onCancel")
-            t1.cancel()
-            t2.cancel()
-            t3.cancel()
-        }
-        // このTaskがキャンセルされていた場合はCancellationErrorが投げられる
-        try Task.checkCancellation()
-    }
-}
-
 // async letすると子タスクが生成されて実行される検証
 // ただしasync let で実行する処理がTaskを返すような場合は親をキャンセルしても止まらない
 // async letで生成するTaskは現在実行しているタスクの子といった紐付けが行われるが、自らTaskを内側に書いたものは子タスクとして関連付けされないみたい
@@ -199,7 +128,7 @@ func notChildTask() -> Task<Void, Never> {
     return r
 }
 
-private func childTask1() -> Task<Void, Error> {
+func childTask1() -> Task<Void, Error> {
     Task {
         print("start " + #function.debugDescription)
         try await sleep(seconds: 1)
@@ -207,17 +136,16 @@ private func childTask1() -> Task<Void, Error> {
     }
 }
 
-private func childTask2() -> Task<Int, Error> {
+func childTask2() -> Task<Int, Error> {
     Task {
         print("start " + #function.debugDescription)
         try await sleep(seconds: 2)
         print("end " + #function.debugDescription)
         return 1
-        
     }
 }
 
-private func childTask3() -> Task<String, Error> {
+func childTask3() -> Task<String, Error> {
     Task {
         print("start " + #function.debugDescription)
         try await sleep(seconds: 1)
@@ -226,7 +154,7 @@ private func childTask3() -> Task<String, Error> {
     }
 }
 
-// async letやwithThrowingTaskGroupを使った構造的なTask
+// async letやwithThrowingTaskGroupを使った構造的(親子)なTask
 func groupTask() async -> Task<Void, Error> {
     Task {
         try await withThrowingTaskGroup(of: Void.self) { group in

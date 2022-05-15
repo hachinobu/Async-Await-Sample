@@ -225,15 +225,58 @@ func stream() -> AsyncThrowingStream<String, Error> {
 //    task.cancel()
 //}
 
+//do {
+//    let task1 = Task {
+//        let task2 = await groupTask()
+//        // 下記をコメントインするとwithThrowingGroupで作成した子タスクの処理も止まる
+////        task2.cancel()
+//    }
+//    // このタスクをキャンセルしても構造化されていないので中はキャンセルされない
+//    task1.cancel()
+//}
+
 do {
-    let task1 = Task {
-        let task2 = await groupTask()
-        // 下記をコメントインするとwithThrowingGroupで作成した子タスクの処理も止まる
-//        task2.cancel()
+    Task {
+        let task = asyncThrows()
+        switch await task.result {
+        case .success:
+            print("success")
+        case .failure(let e):
+            if let ee = e as? MyError {
+                switch ee {
+                case .e1:
+                    print("failure: MyError.E1")
+                case .e2:
+                    print("failure: MyError.E2")
+                }
+            }
+        }
     }
-    // このタスクをキャンセルしても構造化されていないので中はキャンセルされない
-    task1.cancel()
 }
 
+//Task {
+//    let t = cancelTask()
+//    t.cancel()
+//}
+
+//Task {
+//    do {
+//        try await fetchImage()
+//    } catch {
+//        print(error)
+//    }
+//
+//}
+
+//Task {
+//    let task = fetchImageData()
+//    task.cancel()
+//    switch await task.result {
+//    case .success:
+//        print("success")
+//    case .failure(let e):
+//        print("faulure: " + e.localizedDescription)
+//    }
+//}
 
 RunLoop.main.run()

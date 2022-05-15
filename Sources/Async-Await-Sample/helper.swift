@@ -44,6 +44,16 @@ func throwsE1() throws {
     throw MyError.e1
 }
 
+func throwsE1() async throws {
+    try await sleep(seconds: 1)
+    throw MyError.e1
+}
+
+func throwsE2() async throws {
+    try await sleep(seconds: 2)
+    throw MyError.e2
+}
+
 func outputIntAsyncStream() -> AsyncStream<Int> {
     .init { continuation in
         continuation.yield(0)
@@ -71,6 +81,7 @@ func outputIntSleepSerialAsyncStream() -> AsyncStream<Int> {
     .init { continuation in
         Task {
             for num in [3, 2, 1] {
+                // この中は直列に走るので全てが終わるまで6秒かかる
                 try! await sleep(seconds: num)
                 continuation.yield(num)
             }
@@ -82,6 +93,7 @@ func outputIntSleepSerialAsyncStream() -> AsyncStream<Int> {
 func outputIntSleepParallelAsyncStream() -> AsyncStream<Int> {
     .init { continuation in
         Task {
+            // 並列に走らせるにはasync let もしくはwithTaskGroupを使う
             await withTaskGroup(of: Void.self) { group in
                 [3, 2, 1].forEach { num in
                     group.addTask {
